@@ -10,7 +10,7 @@
     creates="{{simplepki_root_ca_name|trim}}{{simplepki_file_ext_key}}"
     executable=/bin/bash
     chdir="{{simplepki_root_ca_private_dir}}"
-    
+
 - name: create root ca certificate
   shell: openssl ca -selfsign
       -config {{simplepki_conf_dir}}/{{simplepki_root_ca_name|trim}}.conf
@@ -30,7 +30,7 @@
     creates="{{simplepki_signing_ca_name|trim}}{{simplepki_file_ext_key}}"
     executable=/bin/bash
     chdir="{{simplepki_signing_ca_private_dir}}"
-    
+
 - name: create signing ca certificate
   shell: openssl ca
       -config {{simplepki_conf_dir}}/{{simplepki_root_ca_name|trim}}.conf
@@ -52,7 +52,7 @@
   with_items:
     - "{{simplepki_signing_ca_name}}"
     - "{{simplepki_root_ca_name}}"
-    
+
 - name: create initial chained cert
   shell: cat {{simplepki_root_ca_name|trim}}{{simplepki_file_ext_crt}}
          {{simplepki_signing_ca_name|trim}}{{simplepki_file_ext_crt}}
@@ -61,18 +61,18 @@
     executable=/bin/bash
     creates="{{simplepki_chained_ca_name|trim}}{{simplepki_file_ext_crt}}"
     chdir="{{simplepki_ca_base_dir}}"
-           
+
 - name: protect keys
-  file: 
+  file:
     path="{{item}}"
-    owner=root 
-    group=root 
+    owner=root
+    group=root
     mode=0400
   with_items:
   - "{{simplepki_root_ca_private_dir}}/{{simplepki_root_ca_name|trim}}{{simplepki_file_ext_key}}"
   - "{{simplepki_signing_ca_private_dir}}/{{simplepki_signing_ca_name|trim}}{{simplepki_file_ext_key}}"
 
-  
+
 - name: fetch ca keys and certs
   fetch:
     src="{{item}}"
@@ -84,8 +84,4 @@
   - "{{simplepki_ca_base_dir}}/{{simplepki_root_ca_name|trim}}{{simplepki_file_ext_crt}}"
   - "{{simplepki_ca_base_dir}}/{{simplepki_chained_ca_name|trim}}{{simplepki_file_ext_crt}}"
   - "{{simplepki_ca_base_dir}}/{{simplepki_signing_ca_name|trim}}{{simplepki_file_ext_crt}}"
-  when: simplepki_fetch_pki_ca
-
-
-
-    
+  when: "{{simplepki_fetch_pki_ca}}"
